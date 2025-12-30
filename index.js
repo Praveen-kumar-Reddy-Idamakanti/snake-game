@@ -7,6 +7,7 @@ for(let i=0;i<gridSize;i++){
     cell.classList.add("cell");
     board.appendChild(cell);
 }
+let score=0
 
 const cols=60
 const rows=30
@@ -28,6 +29,7 @@ while (i<1800){
 }
 console.log(leftWall);
 
+isGameStarted=false
 
 
 //collect key boiard events
@@ -40,21 +42,12 @@ console.log(leftWall);
     });
 
 //game start logic
-const startBtn= document.getElementById("game-start");
 function gamesStart(isStarted){
-
-    if (isStarted){
-        console.log("GameStarted");
-        startBtn.style.display="none";
-        resetGame();
+        isGameStarted=true
         createFood();
         coreGame();
     }
-    else{ //if game is not started
-        startBtn.style.display="block"
-        console.log("display startButton")
-    }
-}
+
  
 function createSnake(){
     const centerCell=board.children[centerIndex]
@@ -68,13 +61,25 @@ function coreGame(){
     
     function moveSnake(){
         const newHead=snakeArr[0]+direction;
-        if (newHead in leftWall) console.log(newHead);
+        if (snakeArr[0]==food_index){
+            //snake increase
+            snakeArr.push(newHead)
+            //score increase
+            updateScore();
+            //food reporoduce 
+            createFood();
+            // increase spped
+            increaseSpeed();
+
+        }
         if (newHead<0 || newHead>=1800){
-            console.log(newHead+1);
+            isGameStarted=false
+
             gameEnd(intervalID)
             return;
         }
         if ((direction==-1 && leftWall.includes(snakeArr[0]))|| (direction==1 && rightWall.includes(snakeArr[0]+1))){
+            isGameStarted=false
             gameEnd(intervalID);
             return;
         }
@@ -82,14 +87,19 @@ function coreGame(){
         snakeArr.pop();
 
         removeSnake();
+        let head=0
         snakeArr.forEach(element => {
             const s= document.createElement("div");
+            if (head==0) {
+                s.style.backgroundColor="#006400" 
+                head+=1
+            }
             s.classList.add("snake")
             board.children[element].appendChild(s);
         });
 
     }
-    const intervalID=setInterval(moveSnake,90);
+    const intervalID=setInterval(moveSnake,speed);
     
 }
 function createFood(){
@@ -105,10 +115,9 @@ function createFood(){
     food=document.createElement("div");
     food.classList.add("food");
     cell.appendChild(food);
-
     food_index=rand_cell;
-    
     console.log("added food");
+    return food_index
 }
 
 function removeSnake(){
@@ -118,17 +127,24 @@ function removeSnake(){
 function resetGame(){
     direction=1;
     snakeArr=[centerIndex]
+    updateScore();
     removeSnake();
     createSnake();
-    gamesStart(false)
+}
+
+function updateScore(){
+    if (isGameStarted){
+        score=snakeArr.length-1
+        document.getElementById("stat").innerHTML=`Score: ${score}`;
+    }
 }
 
 //game end logic
 function gameEnd(intervalID){
     // display alert 
-    alert("Game Failed")
+    document.getElementById("stat").innerHTML=`Game Finished !! Score: ${snakeArr.length-1}`;
     clearInterval(intervalID);
     //restart the game
-    gamesStart(true);
+    resetGame();
 }
 
