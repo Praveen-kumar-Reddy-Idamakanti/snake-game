@@ -41,8 +41,10 @@ isGameStarted=false
     });
 
 //game start logic
-function gamesStart(isStarted){
+function gamesStart(){
         isGameStarted=true
+        document.getElementById("stat").innerHTML=``;
+
         createFood();
         coreGame();
     }
@@ -129,6 +131,7 @@ function resetGame(){
     updateScore();
     removeSnake();
     createSnake();
+
 }
 
 function updateScore(){
