@@ -17,6 +17,7 @@
     height: 4rem;
     width: 8rem;
 }
+
 .game-container{
     height: 100vh;
     width:100%;
@@ -25,6 +26,10 @@
     justify-content: center;
     align-items: center;
 
+}
+.game-container h1{
+    position: absolute;
+    top: 2rem;
 }
 .game-board{
     display: grid;
@@ -47,4 +52,6 @@
 }
 .food{
     background-color: red;
+    width: 100%;
+    height: 100%;
 }
