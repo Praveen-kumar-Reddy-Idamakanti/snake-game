@@ -8,7 +8,6 @@ for(let i=0;i<gridSize;i++){
     board.appendChild(cell);
 }
 let score=0
-
 const cols=60
 const rows=30
 
@@ -99,7 +98,7 @@ function coreGame(){
         });
 
     }
-    const intervalID=setInterval(moveSnake,speed);
+    const intervalID=setInterval(moveSnake,90);
     
 }
 function createFood(){
