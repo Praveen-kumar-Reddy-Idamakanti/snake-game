@@ -1,4 +1,3 @@
-
 //board logic
 const board= document.getElementById("game-board");
 const gridSize=1800;
@@ -10,7 +9,8 @@ for(let i=0;i<gridSize;i++){
 let score=0
 const cols=60
 const rows=30
-
+let intervalID=null;
+let prev_direction=null
 const centerRow=Math.floor(rows/2)
 const centerCol=Math.floor(cols/2)
 
@@ -21,6 +21,8 @@ let direction=1;
 leftWall=[]
 rightWall=[]
 let i=0
+
+let speeed=90
 while (i<1800){
     leftWall.push(i);
     i=i+60
@@ -37,14 +39,14 @@ isGameStarted=false
         if (e.code=="ArrowDown")direction= cols;
         if (e.code=="ArrowRight")direction= 1;
         if (e.code=="ArrowLeft")direction= -1;
-        if (e.code=="Enter")gamesStart(true);
+        if (e.code=="Enter" && !isGameStarted ) gamesStart() ;
     });
 
 //game start logic
 function gamesStart(){
+        if (isGameStarted) return
         isGameStarted=true
         document.getElementById("stat").innerHTML=``;
-
         createFood();
         coreGame();
     }
@@ -61,6 +63,15 @@ function createSnake(){
 function coreGame(){
     
     function moveSnake(){
+        //snake flip logic
+        
+        if( (prev_direction==-1 && direction==1)|| 
+         (prev_direction==1 && direction==-1)||
+         (prev_direction==-cols&&direction==cols )||
+        (prev_direction==cols&&direction==-cols )){
+            direction=prev_direction
+        }
+        prev_direction=direction
         const newHead=snakeArr[0]+direction;
         if (snakeArr[0]==food_index){
             //snake increase
@@ -73,7 +84,7 @@ function coreGame(){
             increaseSpeed();
 
         }
-        if (newHead<0 || newHead>=1800){
+        if (newHead<0 || newHead>=gridSize){
             isGameStarted=false
 
             gameEnd(intervalID)
@@ -92,17 +103,26 @@ function coreGame(){
         snakeArr.forEach(element => {
             const s= document.createElement("div");
             if (head==0) {
-                s.style.backgroundColor="#006400" 
-                head+=1
+                s.style.backgroundColor="#006400" ;
+                s.classList.add(".snake-head")
+                head+=1;
             }
             s.classList.add("snake")
             board.children[element].appendChild(s);
         });
 
     }
-    const intervalID=setInterval(moveSnake,90);
-    
+    intervalID=setInterval(moveSnake,speeed);
+    function increaseSpeed(){
+    clearInterval(intervalID)
+    speeed-=1.5
+    if (speeed<20) speeed=20;
+    console.log(speeed)
+    intervalID=setInterval(moveSnake,speeed);
 }
+}
+
+
 function createFood(){
     document.querySelectorAll(".food").forEach(f => f.remove());
     min=0
@@ -110,14 +130,12 @@ function createFood(){
     let rand_cell;
     do{
         rand_cell=Math.floor(Math.random()*(max-min)+min);
-
     }while (snakeArr.includes(rand_cell));
     const cell=board.children[rand_cell]
     food=document.createElement("div");
     food.classList.add("food");
     cell.appendChild(food);
     food_index=rand_cell;
-    console.log("added food");
     return food_index
 }
 
@@ -127,6 +145,7 @@ function removeSnake(){
 
 function resetGame(){
     direction=1;
+    speeed=90;
     snakeArr=[centerIndex]
     updateScore();
     removeSnake();
@@ -143,9 +162,12 @@ function updateScore(){
 
 //game end logic
 function gameEnd(intervalID){
+    clearInterval(intervalID);
+    intervalID=null;
+    isGameStarted=false;
+
     // display alert 
     document.getElementById("stat").innerHTML=`Game Finished !! Score: ${snakeArr.length-1}`;
-    clearInterval(intervalID);
     //restart the game
     resetGame();
 }
